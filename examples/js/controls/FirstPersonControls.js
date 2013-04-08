@@ -12,19 +12,13 @@ THREE.FirstPersonControls = function ( object, domElement ) {
 	this.domElement = ( domElement !== undefined ) ? domElement : document;
 
 	this.movementSpeed = 1.0;
-	this.lookSpeed = 0.005;
+	this.lookSpeed = 0.1;
 
 	this.lookVertical = true;
 	this.autoForward = false;
 
-	this.activeLook = false;
-
-	this.constrainVertical = true;
-	this.verticalMin = Math.PI/3;
-	this.verticalMax = 2*Math.PI/3;
-
-	this.autoSpeedFactor = 0.0;
-
+	this.activeLook = true;
+	
 	this.mouseX = 0;
 	this.mouseY = 0;
 
@@ -38,8 +32,6 @@ THREE.FirstPersonControls = function ( object, domElement ) {
 	this.moveLeft = false;
 	this.moveRight = false;
 	this.freeze = false;
-
-	this.mouseDragOn = false;
 
 	this.viewHalfX = 0;
 	this.viewHalfY = 0;
@@ -77,19 +69,16 @@ THREE.FirstPersonControls = function ( object, domElement ) {
 		event.preventDefault();
 		event.stopPropagation();
 
-		if ( !this.activeLook ) {
+		if ( this.activeLook ) {
 
 			switch ( event.button ) {
 
-				//case 0: /*left button*/ break;
-				//case 1: /*middle button*/ break;
-				case 2: /*right button*/ this.activeLook = true; break;
+				case 0: this.moveForward = true; break;
+				case 2: this.moveBackward = true; break;
 
 			}
 
 		}
-
-		this.mouseDragOn = true;
 
 	};
 
@@ -102,21 +91,17 @@ THREE.FirstPersonControls = function ( object, domElement ) {
 
 			switch ( event.button ) {
 
-				//case 0: /*left button*/ break;
-				//case 1: /*middle button*/ break;
-				case 2: /*button 2*/ this.activeLook = false; break;
+				case 0: this.moveForward = false; break;
+				case 2: this.moveBackward = false; break;
 
 			}
 
 		}
 
-		this.mouseDragOn = false;
-
 	};
 
 	this.onMouseMove = function ( event ) {
 
-		if ( this.activeLook ){
 		if ( this.domElement === document ) {
 
 			this.mouseX = event.pageX - this.viewHalfX;
@@ -127,8 +112,7 @@ THREE.FirstPersonControls = function ( object, domElement ) {
 			this.mouseX = event.pageX - this.domElement.offsetLeft - this.viewHalfX;
 			this.mouseY = event.pageY - this.domElement.offsetTop - this.viewHalfY;
 
-		}}
-		else {return;}
+		}
 
 	};
 
@@ -178,69 +162,36 @@ THREE.FirstPersonControls = function ( object, domElement ) {
 	};
 
 	this.update = function( delta ) {
-		var actualMoveSpeed = 0;
 
 		if ( this.freeze ) {
 
 			return;
 
-		} else {
-
-			this.autoSpeedFactor = 0.0;
-
-			actualMoveSpeed = delta * this.movementSpeed;
-
-			if ( this.moveForward || ( this.autoForward && !this.moveBackward ) ) this.object.translateZ( - ( actualMoveSpeed + this.autoSpeedFactor ) );
-			if ( this.moveBackward ) this.object.translateZ( actualMoveSpeed );
-
-			if ( this.moveLeft ) this.object.translateX( - actualMoveSpeed );
-			if ( this.moveRight ) this.object.translateX( actualMoveSpeed );
-
-			var actualLookSpeed = delta * this.lookSpeed;
-
-			if ( !this.activeLook ) {
-
-				actualLookSpeed = 0;
-
-			}
-
-			this.lon += this.mouseX * actualLookSpeed;
-			if( this.lookVertical ) this.lat -= this.mouseY * actualLookSpeed;
-
-			this.lat = Math.max( - 85, Math.min( 85, this.lat ) );
-			this.phi = ( 90 - this.lat ) * Math.PI / 180;
-			this.theta = this.lon * Math.PI / 180;
-
-			var targetPosition = this.target,
-				position = this.object.position;
-
-			targetPosition.x = position.x + 100 * Math.sin( this.phi ) * Math.cos( this.theta );
-			targetPosition.y = position.y + 100 * Math.cos( this.phi );
-			targetPosition.z = position.z + 100 * Math.sin( this.phi ) * Math.sin( this.theta );
-
 		}
 
-		var verticalLookRatio = 1;
+		var actualMoveSpeed = delta * this.movementSpeed;
 
-		if ( this.constrainVertical ) {
+		if ( this.moveForward || ( this.autoForward && !this.moveBackward ) ) this.object.translateZ( - ( actualMoveSpeed ) );
+		if ( this.moveBackward ) this.object.translateZ( actualMoveSpeed );
 
-			verticalLookRatio = Math.PI / ( this.verticalMax - this.verticalMin );
+		if ( this.moveLeft ) this.object.translateX( - actualMoveSpeed );
+		if ( this.moveRight ) this.object.translateX( actualMoveSpeed );
+
+		var actualLookSpeed = delta * this.lookSpeed;
+
+		if ( !this.activeLook ) {
+
+			actualLookSpeed = 0;
 
 		}
 
 		this.lon += this.mouseX * actualLookSpeed;
-		if( this.lookVertical ) this.lat -= this.mouseY * actualLookSpeed * verticalLookRatio;
+		if( this.lookVertical ) this.lat -= this.mouseY * actualLookSpeed;
 
 		this.lat = Math.max( - 85, Math.min( 85, this.lat ) );
-		this.phi = ( 90 - this.lat ) * Math.PI / 180;
+		this.phi = THREE.Math.degToRad( 90 - this.lat );
 
-		this.theta = this.lon * Math.PI / 180;
-
-		if ( this.constrainVertical ) {
-
-			this.phi = THREE.Math.mapLinear( this.phi, 0, Math.PI, this.verticalMin, this.verticalMax );
-
-		}
+		this.theta = THREE.Math.degToRad( this.lon );
 
 		var targetPosition = this.target,
 			position = this.object.position;
