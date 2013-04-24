@@ -53,7 +53,7 @@
 			<div id="instructions">
 				<span style="font-size:50px">Click to Play</span><br />
 				W, A, S, D or &larr; &uarr; &rarr; &darr; = Move<br />
-                Esc, P = Pause, Left Mouse = Look
+                Esc, P = Pause, Right Mouse = Look
 			</div>
 		</div>
 
@@ -63,7 +63,7 @@
 			var geometry, material, mesh;
 			var controls, time = Date.now();
 
-			var projector, items = [];
+			var blocker = document.getElementById( 'blocker' );
 
 			if ( !Detector.webgl ) {
 
@@ -78,7 +78,6 @@
 					controls.enabled = true;
 
 					document.getElementById( 'blocker' ).style.display = 'none';
-					document.getElementById( 'instructions' ).style.display = 'none';
 
 				}, false );
 
@@ -120,28 +119,26 @@
 				};
 				loader.load( "models/reshall/ResHall.js", callbackModel );
 
-				// items
-				
+				// clickable boxes
+
 				geometry = new THREE.CubeGeometry( 6, 6, 6 );
 				material = new THREE.MeshLambertMaterial ( { color: 0x228B22 } );
 				mesh = new THREE.Mesh( geometry, material );
 				mesh.position.set( -509, 51, -461 );
 				scene.add( mesh );
-				items.push( mesh );
-				
+				controls.addItem( mesh );
+
 				mesh = new THREE.Mesh( geometry, material );
 				mesh.position.set(-485, 51, -485 );
 				scene.add( mesh );
-				items.push( mesh );
-				
+				controls.addItem( mesh );
+
 				mesh = new THREE.Mesh( geometry, material );
 				mesh.position.set( -461, 51, -509 );
 				scene.add( mesh );
-				items.push( mesh );
-				
+				controls.addItem( mesh );
+
 				//
-				
-				projector = new THREE.Projector();
 
 				renderer = new THREE.WebGLRenderer();
 				renderer.sortObjects = false;

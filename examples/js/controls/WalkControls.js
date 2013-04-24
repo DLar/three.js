@@ -1,6 +1,6 @@
 /**
  * @author mrdoob / http://mrdoob.com/
- * @author DLar
+ * @author DLar / https://github.com/dlar
  */
 
 THREE.WalkControls = function ( camera ) {
@@ -25,13 +25,46 @@ THREE.WalkControls = function ( camera ) {
 	var movementX = 0;
 	var movementY = 0;
 
+	var items = [];
+
 	var velocity = new THREE.Vector3();
 
 	var PI_2 = Math.PI / 2;
 	
 	var onMouseDown = function ( event ) {
 
+		if ( scope.enabled === false ) return;
+
 		if ( event.button === 0 ) {
+
+			var vector = new THREE.Vector3( ( event.clientX / window.innerWidth ) * 2 - 1, - ( event.clientY / window.innerHeight ) * 2 + 1, 0.8 );
+			var projector = new THREE.Projector();
+			projector.unprojectVector( vector, camera );
+
+			var raycaster = new THREE.Raycaster( camera.position, vector.sub( camera.position ).normalize() );
+			var intersects = raycaster.intersectObjects( items );
+
+			if ( intersects.length > 0 ) {
+
+				for ( var i = 0; i < items.length; i++ ) {
+
+					if ( items[i].id == intersects[0].object.id ) {
+
+						document.getElementById( 'instructions' ).innerHTML = '<span style="font-size:50px">Box ' + (i+1) + '</span>';
+						document.getElementById( 'blocker' ).style.display = 'block';
+
+						scope.enabled = false;
+						break;
+
+					}
+
+				}
+
+			}
+
+		}
+
+		else if ( event.button === 2 ) {
 
 			rotateStart.set( event.clientX, event.clientY );
 			document.addEventListener( 'mousemove', onMouseMove, false );
@@ -43,6 +76,8 @@ THREE.WalkControls = function ( camera ) {
 	};
 
 	var onMouseUp = function ( event ) {
+
+		if ( scope.enabled === false ) return;
 
 		document.removeEventListener( 'mousemove', onMouseMove, false );
 		document.removeEventListener( 'mouseup', onMouseUp, false );
@@ -89,13 +124,11 @@ THREE.WalkControls = function ( camera ) {
 				if ( scope.enabled === false ) {
 					
 					document.getElementById( 'blocker' ).style.display = 'none';
-					document.getElementById( 'instructions' ).style.display = 'none';
 					
 				} else {
 					
 					document.getElementById( 'instructions' ).innerHTML = '<span style="font-size:50px">Paused</span>'
 					document.getElementById( 'blocker' ).style.display = 'block';
-					document.getElementById( 'instructions' ).style.display = 'block';
 					
 				}
 				
@@ -125,6 +158,7 @@ THREE.WalkControls = function ( camera ) {
 
 	};
 
+	document.addEventListener( 'contextmenu', function ( event ) { event.preventDefault(); }, false );
 	document.addEventListener( 'mousedown', onMouseDown, false );
 	document.addEventListener( 'keydown', onKeyDown, false );
 	document.addEventListener( 'keyup', onKeyUp, false );
@@ -137,9 +171,9 @@ THREE.WalkControls = function ( camera ) {
 
 	};
 	
-	this.getDirection = function () {
-		
-		return velocity;
+	this.addItem = function ( obj ) {
+	
+		items.push( obj );
 		
 	};
 
