@@ -18,7 +18,7 @@ THREE.WalkControls = function ( camera ) {
 	var moveBackward = false;
 	var moveLeft = false;
 	var moveRight = false;
-	
+
 	var rotateStart = new THREE.Vector2();
 	var rotateEnd = new THREE.Vector2();
 	var rotateDelta = new THREE.Vector2();
@@ -30,18 +30,18 @@ THREE.WalkControls = function ( camera ) {
 	var velocity = new THREE.Vector3();
 
 	var PI_2 = Math.PI / 2;
-	
+
 	var onMouseDown = function ( event ) {
 
+		event.preventDefault();
 		if ( scope.enabled === false ) return;
 
 		if ( event.button === 0 ) {
 
-			var vector = new THREE.Vector3( ( event.clientX / window.innerWidth ) * 2 - 1, - ( event.clientY / window.innerHeight ) * 2 + 1, 0.8 );
+			var vector = new THREE.Vector3( ( event.clientX / window.innerWidth ) * 2 - 1, - ( event.clientY / window.innerHeight ) * 2 + 1, 0.5 );
 			var projector = new THREE.Projector();
-			projector.unprojectVector( vector, camera );
-
-			var raycaster = new THREE.Raycaster( camera.position, vector.sub( camera.position ).normalize() );
+			var raycaster = projector.pickingRay( vector, camera );
+			raycaster.far = 96; //picking distance from camera
 			var intersects = raycaster.intersectObjects( items );
 
 			if ( intersects.length > 0 ) {
@@ -50,7 +50,7 @@ THREE.WalkControls = function ( camera ) {
 
 					if ( items[i].id == intersects[0].object.id ) {
 
-						document.getElementById( 'instructions' ).innerHTML = '<span style="font-size:50px">Box ' + (i+1) + '</span>';
+						document.getElementById( 'instructions' ).innerHTML = '<span style="font-size:50px">Box ' + (i+1) + '</span><br />(Click to Resume)';
 						document.getElementById( 'blocker' ).style.display = 'block';
 
 						scope.enabled = false;
@@ -77,6 +77,7 @@ THREE.WalkControls = function ( camera ) {
 
 	var onMouseUp = function ( event ) {
 
+		event.preventDefault();
 		if ( scope.enabled === false ) return;
 
 		document.removeEventListener( 'mousemove', onMouseMove, false );
@@ -86,13 +87,14 @@ THREE.WalkControls = function ( camera ) {
 
 	var onMouseMove = function ( event ) {
 
+		event.preventDefault();
 		if ( scope.enabled === false ) return;
 
 		rotateEnd.set( event.clientX, event.clientY );
 		rotateDelta.subVectors( rotateEnd, rotateStart );
 
-		movementX -= ( Math.PI * rotateDelta.x / 5000);
-		movementY -= ( Math.PI * rotateDelta.y / 4500);
+		movementX -= ( Math.PI * rotateDelta.x / 4000);
+		movementY -= ( Math.PI * rotateDelta.y / 4000);
 
 		yawObject.rotation.y -= movementX;
 		pitchObject.rotation.x -= movementY;
@@ -105,6 +107,7 @@ THREE.WalkControls = function ( camera ) {
 
 	var onKeyDown = function ( event ) {
 
+		event.preventDefault();
 		switch ( event.keyCode ) {
 
 			case 38: /*up*/
@@ -122,16 +125,16 @@ THREE.WalkControls = function ( camera ) {
 			case 27: /*Esc*/
 			case 80: /*P*/
 				if ( scope.enabled === false ) {
-					
+
 					document.getElementById( 'blocker' ).style.display = 'none';
-					
+
 				} else {
-					
-					document.getElementById( 'instructions' ).innerHTML = '<span style="font-size:50px">Paused</span>'
+
+					document.getElementById( 'instructions' ).innerHTML = '<span style="font-size:50px">Paused</span><br />(Click to Resume)';
 					document.getElementById( 'blocker' ).style.display = 'block';
-					
+
 				}
-				
+
 				scope.enabled = !scope.enabled; break;
 
 		}
@@ -140,6 +143,7 @@ THREE.WalkControls = function ( camera ) {
 
 	var onKeyUp = function ( event ) {
 
+		event.preventDefault();
 		switch( event.keyCode ) {
 
 			case 38: /*up*/
@@ -170,11 +174,11 @@ THREE.WalkControls = function ( camera ) {
 		return yawObject;
 
 	};
-	
+
 	this.addItem = function ( obj ) {
-	
+
 		items.push( obj );
-		
+
 	};
 
 	this.update = function ( delta ) {
