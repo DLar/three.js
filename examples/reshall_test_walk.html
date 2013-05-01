@@ -110,13 +110,7 @@
 				
 				var loader = new THREE.JSONLoader();
 				var callbackModel = function ( geometry, materials ) {
-					/*material = new THREE.MeshLambertMaterial( materials );
-					material.side = THREE.DoubleSide;
-					material.transparent = true;
-					material.opacity = 0.5; */
-					material = new THREE.MeshFaceMaterial( materials );
-					material.transparent = true; //Not working
-					mesh = new THREE.Mesh( geometry, material );
+					mesh = new THREE.Mesh( geometry, new THREE.MeshFaceMaterial( materials ) );
 					scene.add( mesh );
 				};
 				loader.load( "models/reshall/ResHall.js", callbackModel );
@@ -143,7 +137,6 @@
 				//
 
 				renderer = new THREE.WebGLRenderer();
-				renderer.sortObjects = false;
 				renderer.setSize( window.innerWidth, window.innerHeight );
 				renderer.setClearColor( scene.fog.color, 1 );
 
