@@ -4,6 +4,7 @@
 		<meta charset="utf-8">
 		<title>Res Hall Test - Walk Controls - Three.js</title>
 		<style>
+
 			html, body {
 				width: 100%;
 				height: 100%;
@@ -40,11 +41,11 @@
 				top: 45%;
 
 			}
+
 		</style>
 	</head>
 	<body>
-    	<div id="message"></div>
-        
+
 		<script src="../build/three.min.js"></script>
         <script src="js/Detector.js"></script>
 		<script src="js/controls/WalkControls.js"></script>
@@ -62,15 +63,15 @@
 		<script>
 
 			var camera, scene, renderer;
-			var geometry, material, mesh;
+			var geometry, mesh;
 			var controls, time = Date.now();
 
 			var blocker = document.getElementById( 'blocker' );
+			var instructions = document.getElementById( 'instructions' );
 
 			if ( !Detector.webgl ) {
 
 				controls.enabled = false;
-
 				Detector.addGetWebGLMessage();
 
 			} else {
@@ -78,8 +79,7 @@
 				blocker.addEventListener( 'click', function ( event ) {
 
 					controls.enabled = true;
-
-					document.getElementById( 'blocker' ).style.display = 'none';
+					blocker.style.display = 'none';
 
 				}, false );
 
@@ -94,20 +94,20 @@
 
 				scene = new THREE.Scene();
 				scene.fog = new THREE.Fog( 0x000000, 0, 1200 );
-				
+
 				var light = new THREE.DirectionalLight( 0xffffff, 1.5 );
 				light.position.set( 1, 1, 1 );
 				scene.add( light );
 
 				var light = new THREE.DirectionalLight( 0xffffff, 0.75 );
-				light.position.set( -1, - 0.5, -1 );
+				light.position.set( -1, -1, -1 );
 				scene.add( light );
 
 				controls = new THREE.WalkControls( camera );
 				scene.add( controls.getObject() );
-				
+
 				// model
-				
+
 				var loader = new THREE.JSONLoader();
 				var callbackModel = function ( geometry, materials ) {
 					mesh = new THREE.Mesh( geometry, new THREE.MeshFaceMaterial( materials ) );
@@ -118,23 +118,22 @@
 				// clickable boxes
 
 				geometry = new THREE.CubeGeometry( 6, 6, 6 );
-				material = new THREE.MeshLambertMaterial ( { color: 0x228B22 } );
-				mesh = new THREE.Mesh( geometry, material );
+				mesh = new THREE.Mesh( geometry, new THREE.MeshLambertMaterial ( { color: 0x008542 } ) );
 				mesh.position.set( -509, 51, -461 );
 				scene.add( mesh );
 				controls.addItem( mesh );
 
-				mesh = new THREE.Mesh( geometry, material );
+				mesh = new THREE.Mesh( geometry, new THREE.MeshLambertMaterial ( { color: 0x008542 } ) );
 				mesh.position.set(-485, 51, -485 );
 				scene.add( mesh );
 				controls.addItem( mesh );
 
-				mesh = new THREE.Mesh( geometry, material );
+				mesh = new THREE.Mesh( geometry, new THREE.MeshLambertMaterial ( { color: 0x008542 } ) );
 				mesh.position.set( -461, 51, -509 );
 				scene.add( mesh );
 				controls.addItem( mesh );
 
-				//
+				// renderer
 
 				renderer = new THREE.WebGLRenderer();
 				renderer.setSize( window.innerWidth, window.innerHeight );
@@ -162,7 +161,7 @@
 				requestAnimationFrame( animate );
 
 				controls.update( Date.now() - time );
-				
+
 				renderer.render( scene, camera );
 
 				time = Date.now();

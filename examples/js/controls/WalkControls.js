@@ -6,6 +6,7 @@
 THREE.WalkControls = function ( camera ) {
 
 	var scope = this;
+	var RMB = false;
 
 	var pitchObject = new THREE.Object3D();
 	pitchObject.add( camera );
@@ -25,7 +26,8 @@ THREE.WalkControls = function ( camera ) {
 	var movementX = 0;
 	var movementY = 0;
 
-	var items = [];
+	var projector = new THREE.Projector();
+	var vector, raycaster, intersects, INTERSECTED, items = [];
 
 	var velocity = new THREE.Vector3();
 
@@ -38,20 +40,14 @@ THREE.WalkControls = function ( camera ) {
 
 		if ( event.button === 0 ) {
 
-			var vector = new THREE.Vector3( ( event.clientX / window.innerWidth ) * 2 - 1, - ( event.clientY / window.innerHeight ) * 2 + 1, 0.5 );
-			var projector = new THREE.Projector();
-			var raycaster = projector.pickingRay( vector, camera );
-			raycaster.far = 96; //picking distance from camera
-			var intersects = raycaster.intersectObjects( items );
-
 			if ( intersects.length > 0 ) {
 
 				for ( var i = 0; i < items.length; i++ ) {
 
 					if ( items[i].id == intersects[0].object.id ) {
 
-						document.getElementById( 'instructions' ).innerHTML = '<span style="font-size:50px">Box ' + (i+1) + '</span><br />(Click to Resume)';
-						document.getElementById( 'blocker' ).style.display = 'block';
+						instructions.innerHTML = '<span style="font-size:50px">Box ' + (i+1) + '</span><br />(Click to Resume)';
+						blocker.style.display = 'block';
 
 						scope.enabled = false;
 						break;
@@ -66,12 +62,10 @@ THREE.WalkControls = function ( camera ) {
 
 		else if ( event.button === 2 ) {
 
+			RMB = true;
 			rotateStart.set( event.clientX, event.clientY );
-			document.addEventListener( 'mousemove', onMouseMove, false );
 
 		}
-
-		document.addEventListener( 'mouseup', onMouseUp, false );
 
 	};
 
@@ -80,8 +74,7 @@ THREE.WalkControls = function ( camera ) {
 		event.preventDefault();
 		if ( scope.enabled === false ) return;
 
-		document.removeEventListener( 'mousemove', onMouseMove, false );
-		document.removeEventListener( 'mouseup', onMouseUp, false );
+		RMB = false;
 
 	};
 
@@ -90,18 +83,51 @@ THREE.WalkControls = function ( camera ) {
 		event.preventDefault();
 		if ( scope.enabled === false ) return;
 
-		rotateEnd.set( event.clientX, event.clientY );
-		rotateDelta.subVectors( rotateEnd, rotateStart );
+		vector = new THREE.Vector3( ( event.clientX / window.innerWidth ) * 2 - 1, - ( event.clientY / window.innerHeight ) * 2 + 1, 1 );
+		raycaster = projector.pickingRay( vector, camera );
+		raycaster.far = 48; //picking distance from camera
+		intersects = raycaster.intersectObjects( items );
 
-		movementX -= ( Math.PI * rotateDelta.x / 4000);
-		movementY -= ( Math.PI * rotateDelta.y / 4000);
+		if ( intersects.length > 0 ) {
 
-		yawObject.rotation.y -= movementX;
-		pitchObject.rotation.x -= movementY;
+			if ( INTERSECTED != intersects[ 0 ].object ) {
 
-		pitchObject.rotation.x = Math.max( - PI_2, Math.min( PI_2, pitchObject.rotation.x ) );
+				if ( INTERSECTED ) INTERSECTED.material.emissive.setHex( INTERSECTED.currentHex );
 
-		rotateStart.copy( rotateEnd );
+				INTERSECTED = intersects[ 0 ].object;
+				INTERSECTED.currentHex = INTERSECTED.material.emissive.getHex();
+				INTERSECTED.material.emissive.setHex( 0xffff00 );
+
+			}
+
+			document.body.style.cursor = 'pointer';
+
+		} else {
+
+			if ( INTERSECTED ) INTERSECTED.material.emissive.setHex( INTERSECTED.currentHex );
+
+			INTERSECTED = null;
+
+			document.body.style.cursor = 'auto';
+
+		}
+
+		if ( RMB == true ) {
+
+			rotateEnd.set( event.clientX, event.clientY );
+			rotateDelta.subVectors( rotateEnd, rotateStart );
+
+			movementX -= ( Math.PI * rotateDelta.x / 4000);
+			movementY -= ( Math.PI * rotateDelta.y / 4000);
+
+			yawObject.rotation.y -= movementX;
+			pitchObject.rotation.x -= movementY;
+
+			pitchObject.rotation.x = Math.max( - PI_2, Math.min( PI_2, pitchObject.rotation.x ) );
+
+			rotateStart.copy( rotateEnd );
+
+		}
 
 	};
 
@@ -126,12 +152,12 @@ THREE.WalkControls = function ( camera ) {
 			case 80: /*P*/
 				if ( scope.enabled === false ) {
 
-					document.getElementById( 'blocker' ).style.display = 'none';
+					blocker.style.display = 'none';
 
 				} else {
 
-					document.getElementById( 'instructions' ).innerHTML = '<span style="font-size:50px">Paused</span><br />(Click to Resume)';
-					document.getElementById( 'blocker' ).style.display = 'block';
+					instructions.innerHTML = '<span style="font-size:50px">Paused</span><br />(Click to Resume)';
+					blocker.style.display = 'block';
 
 				}
 
@@ -163,7 +189,9 @@ THREE.WalkControls = function ( camera ) {
 	};
 
 	document.addEventListener( 'contextmenu', function ( event ) { event.preventDefault(); }, false );
+	document.addEventListener( 'mousemove', onMouseMove, false );
 	document.addEventListener( 'mousedown', onMouseDown, false );
+	document.addEventListener( 'mouseup', onMouseUp, false );
 	document.addEventListener( 'keydown', onKeyDown, false );
 	document.addEventListener( 'keyup', onKeyUp, false );
 
