@@ -22,8 +22,9 @@
 	"colorAmbient" : [0.0, 0.0, 0.0],
 	"colorDiffuse" : [0.74, 0.97, 1.0],
 	"illumination" : 4,
+	"opticalDensity" : 1.0,
 	"transparency" : 0.5,
-	"opticalDensity" : 1.0
+	"transparent" : true
 	},
 
 	{
