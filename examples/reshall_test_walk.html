@@ -11,7 +11,7 @@
 			}
 
 			body {
-				background-color: #000000;
+				background-color: #ffffff;
 				margin: 0;
 				overflow: hidden;
 				font-family: arial;
@@ -90,10 +90,10 @@
 
 			function init() {
 
-				camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 1, 1200 );
+				camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 1, 1250 );
 
 				scene = new THREE.Scene();
-				scene.fog = new THREE.Fog( 0x000000, 0, 1200 );
+				scene.fog = new THREE.Fog( 0xffffff, 0, 1250 );
 
 				var light = new THREE.DirectionalLight( 0xffffff, 1.5 );
 				light.position.set( 1, 1, 1 );
@@ -106,6 +106,11 @@
 				controls = new THREE.WalkControls( camera );
 				scene.add( controls.getObject() );
 
+				mesh = new THREE.Mesh(new THREE.PlaneGeometry(4000, 4000), new THREE.MeshLambertMaterial( { color: 0x3B5E2B } ));
+				mesh.position.set( -1500, -0.01, -1500 );
+				mesh.rotation.x = - Math.PI / 2;
+				scene.add(mesh);
+
 				// model
 
 				var loader = new THREE.JSONLoader();
@@ -113,7 +118,7 @@
 					mesh = new THREE.Mesh( geometry, new THREE.MeshFaceMaterial( materials ) );
 					scene.add( mesh );
 				};
-				loader.load( "models/reshall/ResHall.js", callbackModel );
+				loader.load( "models/reshall/ResHallNew.js", callbackModel );
 
 				// clickable boxes
 
