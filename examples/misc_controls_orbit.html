@@ -52,10 +52,15 @@
 
 			var camera, controls, scene, renderer;
 
-			var cross;
-
 			init();
-			animate();
+			render();
+
+			function animate() {
+
+				requestAnimationFrame(animate);
+				controls.update();
+
+			}
 
 			function init() {
 
@@ -63,6 +68,7 @@
 				camera.position.z = 500;
 
 				controls = new THREE.OrbitControls( camera );
+				controls.damping = 0.2;
 				controls.addEventListener( 'change', render );
 
 				scene = new THREE.Scene();
@@ -103,7 +109,8 @@
 				// renderer
 
 				renderer = new THREE.WebGLRenderer( { antialias: false } );
-				renderer.setClearColor( scene.fog.color, 1 );
+				renderer.setClearColor( scene.fog.color );
+				renderer.setPixelRatio( window.devicePixelRatio );
 				renderer.setSize( window.innerWidth, window.innerHeight );
 
 				container = document.getElementById( 'container' );
@@ -119,6 +126,8 @@
 
 				window.addEventListener( 'resize', onWindowResize, false );
 
+				animate();
+
 			}
 
 			function onWindowResize() {
@@ -129,13 +138,6 @@
 				renderer.setSize( window.innerWidth, window.innerHeight );
 
 				render();
-
-			}
-
-			function animate() {
-
-				requestAnimationFrame( animate );
-				controls.update();
 
 			}
 

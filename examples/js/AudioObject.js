@@ -40,7 +40,7 @@ THREE.AudioObject = function ( url, volume, playbackRate, loop ) {
 
 			THREE.AudioObject.prototype.context = new webkitAudioContext();
 
-		} catch( error ) {
+		} catch ( error ) {
 
 			console.warn( "THREE.AudioObject: webkitAudioContext not found" );
 			return this;
@@ -110,8 +110,8 @@ THREE.AudioObject = function ( url, volume, playbackRate, loop ) {
 		oldSoundPosition.copy( soundPosition );
 		oldCameraPosition.copy( cameraPosition );
 
-		soundPosition.getPositionFromMatrix( this.matrixWorld );
-		cameraPosition.getPositionFromMatrix( camera.matrixWorld );
+		soundPosition.setFromMatrixPosition( this.matrixWorld );
+		cameraPosition.setFromMatrixPosition( camera.matrixWorld );
 
 		soundDelta.subVectors( soundPosition, oldSoundPosition );
 		cameraDelta.subVectors( cameraPosition, oldCameraPosition );
@@ -163,6 +163,7 @@ THREE.AudioObject = function ( url, volume, playbackRate, loop ) {
 };
 
 THREE.AudioObject.prototype = Object.create( THREE.Object3D.prototype );
+THREE.AudioObject.prototype.constructor = THREE.AudioObject;
 
 THREE.AudioObject.prototype.context = null;
 THREE.AudioObject.prototype.type = null;

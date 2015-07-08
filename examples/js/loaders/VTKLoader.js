@@ -2,70 +2,34 @@
  * @author mrdoob / http://mrdoob.com/
  */
 
-THREE.VTKLoader = function () {};
+THREE.VTKLoader = function ( manager ) {
+
+	this.manager = ( manager !== undefined ) ? manager : THREE.DefaultLoadingManager;
+
+};
 
 THREE.VTKLoader.prototype = {
 
 	constructor: THREE.VTKLoader,
 
-	addEventListener: THREE.EventDispatcher.prototype.addEventListener,
-	hasEventListener: THREE.EventDispatcher.prototype.hasEventListener,
-	removeEventListener: THREE.EventDispatcher.prototype.removeEventListener,
-	dispatchEvent: THREE.EventDispatcher.prototype.dispatchEvent,
-
-	load: function ( url, callback ) {
+	load: function ( url, onLoad, onProgress, onError ) {
 
 		var scope = this;
-		var request = new XMLHttpRequest();
 
-		request.addEventListener( 'load', function ( event ) {
+		var loader = new THREE.XHRLoader( scope.manager );
+		loader.setCrossOrigin( this.crossOrigin );
+		loader.load( url, function ( text ) {
 
-			var geometry = scope.parse( event.target.responseText );
+			onLoad( scope.parse( text ) );
 
-			scope.dispatchEvent( { type: 'load', content: geometry } );
-
-			if ( callback ) callback( geometry );
-
-		}, false );
-
-		request.addEventListener( 'progress', function ( event ) {
-
-			scope.dispatchEvent( { type: 'progress', loaded: event.loaded, total: event.total } );
-
-		}, false );
-
-		request.addEventListener( 'error', function () {
-
-			scope.dispatchEvent( { type: 'error', message: 'Couldn\'t load URL [' + url + ']' } );
-
-		}, false );
-
-		request.open( 'GET', url, true );
-		request.send( null );
+		}, onProgress, onError );
 
 	},
 
 	parse: function ( data ) {
 
-		var geometry = new THREE.Geometry();
-
-		function vertex( x, y, z ) {
-
-			geometry.vertices.push( new THREE.Vector3( x, y, z ) );
-
-		}
-
-		function face3( a, b, c ) {
-
-			geometry.faces.push( new THREE.Face3( a, b, c ) );
-
-		}
-
-		function face4( a, b, c, d ) {
-
-			geometry.faces.push( new THREE.Face4( a, b, c, d ) );
-
-		}
+		var indices = [];
+		var positions = [];
 
 		var pattern, result;
 
@@ -73,11 +37,11 @@ THREE.VTKLoader.prototype = {
 
 		pattern = /([\+|\-]?[\d]+[\.][\d|\-|e]+)[ ]+([\+|\-]?[\d]+[\.][\d|\-|e]+)[ ]+([\+|\-]?[\d]+[\.][\d|\-|e]+)/g;
 
-		while ( ( result = pattern.exec( data ) ) != null ) {
+		while ( ( result = pattern.exec( data ) ) !== null ) {
 
 			// ["1.0 2.0 3.0", "1.0", "2.0", "3.0"]
 
-			vertex( parseFloat( result[ 1 ] ), parseFloat( result[ 2 ] ), parseFloat( result[ 3 ] ) );
+			positions.push( parseFloat( result[ 1 ] ), parseFloat( result[ 2 ] ), parseFloat( result[ 3 ] ) );
 
 		}
 
@@ -85,11 +49,11 @@ THREE.VTKLoader.prototype = {
 
 		pattern = /3[ ]+([\d]+)[ ]+([\d]+)[ ]+([\d]+)/g;
 
-		while ( ( result = pattern.exec( data ) ) != null ) {
+		while ( ( result = pattern.exec( data ) ) !== null ) {
 
 			// ["3 1 2 3", "1", "2", "3"]
 
-			face3( parseInt( result[ 1 ] ), parseInt( result[ 2 ] ), parseInt( result[ 3 ] ) );
+			indices.push( parseInt( result[ 1 ] ), parseInt( result[ 2 ] ), parseInt( result[ 3 ] ) );
 
 		}
 
@@ -97,21 +61,23 @@ THREE.VTKLoader.prototype = {
 
 		pattern = /4[ ]+([\d]+)[ ]+([\d]+)[ ]+([\d]+)[ ]+([\d]+)/g;
 
-		while ( ( result = pattern.exec( data ) ) != null ) {
+		while ( ( result = pattern.exec( data ) ) !== null ) {
 
 			// ["4 1 2 3 4", "1", "2", "3", "4"]
 
-			face4( parseInt( result[ 1 ] ), parseInt( result[ 2 ] ), parseInt( result[ 3 ] ), parseInt( result[ 4 ] ) );
+			indices.push( parseInt( result[ 1 ] ), parseInt( result[ 2 ] ), parseInt( result[ 4 ] ) );
+			indices.push( parseInt( result[ 2 ] ), parseInt( result[ 3 ] ), parseInt( result[ 4 ] ) );
 
 		}
 
-		geometry.computeCentroids();
-		geometry.computeFaceNormals();
-		geometry.computeVertexNormals();
-		geometry.computeBoundingSphere();
+		var geometry = new THREE.BufferGeometry();
+		geometry.addAttribute( 'index', new THREE.BufferAttribute( new ( indices.length > 65535 ? Uint32Array : Uint16Array )( indices ), 1 ) );
+		geometry.addAttribute( 'position', new THREE.BufferAttribute( new Float32Array( positions ), 3 ) );
 
 		return geometry;
 
 	}
 
 };
+
+THREE.EventDispatcher.prototype.apply( THREE.VTKLoader.prototype );

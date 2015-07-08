@@ -7,6 +7,8 @@
 		<link type="text/css" rel="stylesheet" href="../../../page.css" />
 	</head>
 	<body>
+		[page:Path] &rarr;
+
 		<h1>[name]</h1>
 
 		<div class="desc">Defines a 2d shape plane using paths.</div>
@@ -14,13 +16,17 @@
 
 		<h2>Constructor</h2>
 
+
 		<h3>[name]()</h3>
+		<div>
+		todo
+		</div>
 
 
 		<h2>Properties</h2>
 
 
-		<h3>.[page:array holes]</h3>
+		<h3>[property:array holes]</h3>
 		<div>
 		todo
 		</div> 
@@ -28,15 +34,31 @@
 		<h2>Methods</h2>
 
 
-		<h3>.makeGeometry([page:todo options]) [page:todo]</h3>
+		<h3>[method:todo makeGeometry]([page:todo options])</h3>
 		<div>
-		options -- todo
+		options -- The options passed as the second argument to [page:ShapeGeometry ShapeGeometry]
 		</div>
 		<div>
-		todo
+		Convenience method to return ShapeGeometry
 		</div>
 
-		<h3>.extractAllPoints([page:todo divisions]) [page:todo]</h3>
+		<h3>[method:todo extractAllPoints]([page:todo divisions])</h3>
+		<div>
+		divisions -- todo
+		</div>
+		<div>
+		Get points of shape and holes (keypoints based on segments parameter)
+		</div>
+
+		<h3>[method:todo extrude]([page:todo options])</h3>
+		<div>
+		options -- The options passed as the second argument to [page:ExtrudeGeometry ExtrudeGeometry]
+		</div>
+		<div>
+		Convenience method to return ExtrudeGeometry
+		</div>
+
+		<h3>[method:todo extractPoints]([page:todo divisions])</h3>
 		<div>
 		divisions -- todo
 		</div>
@@ -44,15 +66,7 @@
 		todo
 		</div>
 
-		<h3>.extrude([page:todo options]) [page:todo]</h3>
-		<div>
-		options -- todo
-		</div>
-		<div>
-		todo
-		</div>
-
-		<h3>.extractPoints([page:todo divisions]) [page:todo]</h3>
+		<h3>[method:todo extractAllSpacedPoints]([page:todo divisions])</h3>
 		<div>
 		divisions -- todo
 		</div>
@@ -60,28 +74,20 @@
 		todo
 		</div>
 
-		<h3>.extractAllSpacedPoints([page:todo divisions]) [page:todo]</h3>
+		<h3>[method:todo getPointsHoles]([page:todo divisions])</h3>
 		<div>
 		divisions -- todo
 		</div>
 		<div>
-		todo
+		Get points of holes
 		</div>
 
-		<h3>.getPointsHoles([page:todo divisions]) [page:todo]</h3>
+		<h3>[method:todo getSpacedPointsHoles]([page:todo divisions])</h3>
 		<div>
 		divisions -- todo
 		</div>
 		<div>
-		todo
-		</div>
-
-		<h3>.getSpacedPointsHoles([page:todo divisions]) [page:todo]</h3>
-		<div>
-		divisions -- todo
-		</div>
-		<div>
-		todo
+		Get points of holes (spaced by regular distance)
 		</div>
 
 		<h2>Source</h2>

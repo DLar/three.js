@@ -3,32 +3,61 @@
  * @author alteredq / http://alteredqualia.com/
  */
 
-THREE.Sprite = function ( material ) {
+THREE.Sprite = ( function () {
 
-	THREE.Object3D.call( this );
+	var indices = new Uint16Array( [ 0, 1, 2,  0, 2, 3 ] );
+	var vertices = new Float32Array( [ - 0.5, - 0.5, 0,   0.5, - 0.5, 0,   0.5, 0.5, 0,   - 0.5, 0.5, 0 ] );
+	var uvs = new Float32Array( [ 0, 0,   1, 0,   1, 1,   0, 1 ] );
 
-	this.material = ( material !== undefined ) ? material : new THREE.SpriteMaterial();
+	var geometry = new THREE.BufferGeometry();
+	geometry.addAttribute( 'index', new THREE.BufferAttribute( indices, 1 ) );
+	geometry.addAttribute( 'position', new THREE.BufferAttribute( vertices, 3 ) );
+	geometry.addAttribute( 'uv', new THREE.BufferAttribute( uvs, 2 ) );
 
-	this.rotation3d = this.rotation;
-	this.rotation = 0;
+	return function ( material ) {
 
-};
+		THREE.Object3D.call( this );
+
+		this.type = 'Sprite';
+
+		this.geometry = geometry;
+		this.material = ( material !== undefined ) ? material : new THREE.SpriteMaterial();
+
+	};
+
+} )();
 
 THREE.Sprite.prototype = Object.create( THREE.Object3D.prototype );
+THREE.Sprite.prototype.constructor = THREE.Sprite;
 
-/*
- * Custom update matrix
- */
+THREE.Sprite.prototype.raycast = ( function () {
 
-THREE.Sprite.prototype.updateMatrix = function () {
+	var matrixPosition = new THREE.Vector3();
 
-	this.rotation3d.set( 0, 0, this.rotation );
-	this.quaternion.setFromEuler( this.rotation3d, this.eulerOrder );
-	this.matrix.makeFromPositionQuaternionScale( this.position, this.quaternion, this.scale );
+	return function ( raycaster, intersects ) {
 
-	this.matrixWorldNeedsUpdate = true;
+		matrixPosition.setFromMatrixPosition( this.matrixWorld );
 
-};
+		var distance = raycaster.ray.distanceToPoint( matrixPosition );
+
+		if ( distance > this.scale.x ) {
+
+			return;
+
+		}
+
+		intersects.push( {
+
+			distance: distance,
+			point: this.position,
+			face: null,
+			object: this
+
+		} );
+
+	};
+
+}() );
 
 THREE.Sprite.prototype.clone = function ( object ) {
 
@@ -40,3 +69,6 @@ THREE.Sprite.prototype.clone = function ( object ) {
 
 };
 
+// Backwards compatibility
+
+THREE.Particle = THREE.Sprite;

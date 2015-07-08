@@ -26,7 +26,6 @@
 
 				color: #0080ff;
 			}
-
 		</style>
 	</head>
 	<body>
@@ -69,24 +68,9 @@
 				var particles = 500000;
 
 				var geometry = new THREE.BufferGeometry();
-				geometry.attributes = {
 
-					position: {
-						itemSize: 3,
-						array: new Float32Array( particles * 3 ),
-						numItems: particles * 3
-					},
-					color: {
-						itemSize: 3,
-						array: new Float32Array( particles * 3 ),
-						numItems: particles * 3
-					}
-
-				}
-
-
-				var positions = geometry.attributes.position.array;
-				var colors = geometry.attributes.color.array;
+				var positions = new Float32Array( particles * 3 );
+				var colors = new Float32Array( particles * 3 );
 
 				var color = new THREE.Color();
 
@@ -118,20 +102,24 @@
 
 				}
 
+				geometry.addAttribute( 'position', new THREE.BufferAttribute( positions, 3 ) );
+				geometry.addAttribute( 'color', new THREE.BufferAttribute( colors, 3 ) );
+
 				geometry.computeBoundingSphere();
 
 				//
 
-				var material = new THREE.ParticleBasicMaterial( { size: 15, vertexColors: true } );
+				var material = new THREE.PointCloudMaterial( { size: 15, vertexColors: THREE.VertexColors } );
 
-				particleSystem = new THREE.ParticleSystem( geometry, material );
+				particleSystem = new THREE.PointCloud( geometry, material );
 				scene.add( particleSystem );
 
 				//
 
-				renderer = new THREE.WebGLRenderer( { antialias: false, clearColor: 0x333333, clearAlpha: 1, alpha: false } );
+				renderer = new THREE.WebGLRenderer( { antialias: false } );
+				renderer.setClearColor( scene.fog.color );
+				renderer.setPixelRatio( window.devicePixelRatio );
 				renderer.setSize( window.innerWidth, window.innerHeight );
-				renderer.setClearColor( scene.fog.color, 1 );
 
 				container.appendChild( renderer.domElement );
 
@@ -149,9 +137,6 @@
 			}
 
 			function onWindowResize() {
-
-				windowHalfX = window.innerWidth / 2;
-				windowHalfY = window.innerHeight / 2;
 
 				camera.aspect = window.innerWidth / window.innerHeight;
 				camera.updateProjectionMatrix();

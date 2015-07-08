@@ -2,9 +2,9 @@
  * @author mrdoob / http://mrdoob.com/
  */
 
-THREE.ImageLoader = function () {
+THREE.ImageLoader = function ( manager ) {
 
-	this.crossOrigin = null;
+	this.manager = ( manager !== undefined ) ? manager : THREE.DefaultLoadingManager;
 
 };
 
@@ -12,32 +12,64 @@ THREE.ImageLoader.prototype = {
 
 	constructor: THREE.ImageLoader,
 
-	addEventListener: THREE.EventDispatcher.prototype.addEventListener,
-	hasEventListener: THREE.EventDispatcher.prototype.hasEventListener,
-	removeEventListener: THREE.EventDispatcher.prototype.removeEventListener,
-	dispatchEvent: THREE.EventDispatcher.prototype.dispatchEvent,
-
-	load: function ( url, image ) {
+	load: function ( url, onLoad, onProgress, onError ) {
 
 		var scope = this;
 
-		if ( image === undefined ) image = new Image();
+		var cached = THREE.Cache.get( url );
 
-		image.addEventListener( 'load', function () {
+		if ( cached !== undefined ) {
 
-			scope.dispatchEvent( { type: 'load', content: image } );
+			onLoad( cached );
+			return;
+
+		}
+
+		var image = document.createElement( 'img' );
+
+		image.addEventListener( 'load', function ( event ) {
+
+			THREE.Cache.add( url, this );
+
+			if ( onLoad ) onLoad( this );
+			
+			scope.manager.itemEnd( url );
 
 		}, false );
 
-		image.addEventListener( 'error', function () {
+		if ( onProgress !== undefined ) {
 
-			scope.dispatchEvent( { type: 'error', message: 'Couldn\'t load URL [' + url + ']' } );
+			image.addEventListener( 'progress', function ( event ) {
 
-		}, false );
+				onProgress( event );
 
-		if ( scope.crossOrigin ) image.crossOrigin = scope.crossOrigin;
+			}, false );
+
+		}
+
+		if ( onError !== undefined ) {
+
+			image.addEventListener( 'error', function ( event ) {
+
+				onError( event );
+
+			}, false );
+
+		}
+
+		if ( this.crossOrigin !== undefined ) image.crossOrigin = this.crossOrigin;
 
 		image.src = url;
+
+		scope.manager.itemStart( url );
+
+		return image;
+
+	},
+
+	setCrossOrigin: function ( value ) {
+
+		this.crossOrigin = value;
 
 	}
 

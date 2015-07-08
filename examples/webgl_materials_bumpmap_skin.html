@@ -179,13 +179,11 @@
 
 				//
 
-				renderer = new THREE.WebGLRenderer( { antialias: false, clearColor: 0x060708, clearAlpha: 1, alpha: false } );
+				renderer = new THREE.WebGLRenderer( { antialias: false } );
+				renderer.setClearColor( 0x444a54 );
+				renderer.setPixelRatio( window.devicePixelRatio );
 				renderer.setSize( window.innerWidth, window.innerHeight );
 				container.appendChild( renderer.domElement );
-
-				var color = new THREE.Color();
-				color.setHSL( 0.6, 0.1, 0.3 );
-				renderer.setClearColor( color, 1 );
 
 				renderer.shadowMapEnabled = true;
 				renderer.shadowMapCullFace = THREE.CullFaceBack;
@@ -196,7 +194,6 @@
 
 				renderer.gammaInput = true;
 				renderer.gammaOutput = true;
-				renderer.physicallyBasedShading = true;
 
 				//
 
@@ -275,9 +272,8 @@
 				uniforms[ "bumpMap" ].value = mapHeight;
 				uniforms[ "specularMap" ].value = mapSpecular;
 
-				uniforms[ "uAmbientColor" ].value.setHex( 0xa0a0a0 );
-				uniforms[ "uDiffuseColor" ].value.setHex( 0xa0a0a0 );
-				uniforms[ "uSpecularColor" ].value.setHex( 0xa0a0a0 );
+				uniforms[ "diffuse" ].value.setHex( 0xa0a0a0 );
+				uniforms[ "specular" ].value.setHex( 0xa0a0a0 );
 
 				uniforms[ "uRoughness" ].value = 0.145;
 				uniforms[ "uSpecularBrightness" ].value = 0.75;

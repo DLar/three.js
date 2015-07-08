@@ -7,26 +7,39 @@
 		<link type="text/css" rel="stylesheet" href="../../../page.css" />
 	</head>
 	<body>
+		[page:Geometry] &rarr;
+		
 		<h1>[name]</h1>
 
-		<div class="desc">todo</div>
+		<div class="desc">Class for generating meshes with axial symmetry. Possible uses include donuts, pipes, vases etc. The lathe rotate around the Z axis.</div>
 
+
+		<h2>Example</h2>
+
+		<code>
+		var points = [];
+		for ( var i = 0; i < 10; i ++ ) {
+			points.push( new THREE.Vector3( Math.sin( i * 0.2 ) * 15 + 50, 0, ( i - 5 ) * 2 ) );
+
+		}
+		var geometry = new THREE.LatheGeometry( points );
+		var material = new THREE.MeshBasicMaterial( { color: 0xffff00 } );
+		var lathe = new THREE.Mesh( geometry, material );
+		scene.add( lathe );
+		</code>
 
 		<h2>Constructor</h2>
 
-		<h3>[name]( points, steps, angle )</h3>
 
-
-		<h2>Properties</h2>
-
-		<h3>.[page:Vector3 todo]</h3>
-
-
-		<h2>Methods</h2>
-
-		<h3>.todo( [page:Vector3 todo] )</h3>
+		<h3>[name]([page:Array points], [page:Integer segments], [page:Float phiStart], [page:Float phiLength])</h3>
 		<div>
-		todo — todo<br />
+		points — Array of Vector3s. Since this rotates around Z axis, the y-values can be set to 0<br />
+		segments — the number of circumference segments to generate. Default is 12.<br />
+		phiStart — the starting angle in radians. Default is 0.<br />
+		phiLength — the radian (0 to 2*PI) range of the lathed section 2*PI is a closed lathe, less than 2PI is a portion. Default is 2*PI
+		</div>
+		<div>
+		This creates a LatheGeometry based on the parameters.
 		</div>
 
 
